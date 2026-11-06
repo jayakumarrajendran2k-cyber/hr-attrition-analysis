@@ -1,7 +1,7 @@
 """HR Analytics - Employee Attrition & Performance
-Run: python hr_analysis.py  -> creates hr_attrition_data.csv + prints insights.
+Run: python hr_analysis.py  -> creates hr_attrition_data.csv + prints analysis and insights.
 NOTE: dataset is synthetic (practice data). Swap in a real one (e.g. IBM HR Analytics on Kaggle) - same columns work."""
-import numpy as np, pandas as pd, json
+import numpy as np, pandas as pd
 rng = np.random.default_rng(42); n = 1470
 
 # ---------- 1. Build dataset ----------
@@ -42,7 +42,7 @@ perf = df.groupby("Attrition").PerformanceRating.mean().round(2).to_dict()
 print(f"Headcount {total} | Leavers {left} | Attrition {overall}% | Avg rating {perf}")
 for k, v in R.items(): print(k, v)
 
-# ---------- 3. Dashboard ----------
+# ---------- 3. Insights ----------
 def d(k, lbl): return next(r for r in R[k] if r[0] == lbl)[1]
 top = max(R["Department"], key=lambda r: r[1])
 ds = df.Satisfaction.isin(["Low","Medium"]); dsr = round(df[ds].Left.mean()*100,1); hsr = round(df[~ds].Left.mean()*100,1)
@@ -54,18 +54,7 @@ ins = [f"Overtime is the biggest driver: {d('Overtime','Yes')}% of overtime staf
        f"Average performance rating is almost the same for leavers ({perf['Yes']}) and stayers ({perf['No']}), so good performers are leaving too."]
 rec = ["Cap overtime and track workload in high-overtime teams.", "Run a 90-day onboarding and mentoring plan for new joiners.",
        "Review pay and promotion cycles in the lowest income band.", "Run quarterly satisfaction pulse surveys and act on low scores."]
-def chart(t, rows):
-    mx = max(r[1] for r in rows); hi = max(r[1] for r in rows)
-    out = f'<section class="c"><h2>{t}</h2>'
-    for l, v, s in rows:
-        out += (f'<div class="r"><span class="l">{l}</span><span class="t"><i class="{"h" if v == hi else ""}" style="width:{v/mx*100:.0f}%"></i></span>'
-                f'<b>{v}%</b></div>')
-    return out + '</section>'
-kpi = [("Employees", f"{total:,}"), ("Left the company", f"{left}"), ("Attrition rate", f"{overall}%"),
-       ("Avg rating: stayed / left", f"{perf['No']} / {perf['Yes']}")]
-html = open("template.html").read()
-html = (html.replace("__KPI__", "".join(f'<div class="k"><b>{v}</b><span>{k}</span></div>' for k, v in kpi))
-        .replace("__CHARTS__", "".join(chart(k, v) for k, v in R.items()))
-        .replace("__INS__", "".join(f"<li>{i}</li>" for i in ins))
-        .replace("__REC__", "".join(f"<li>{i}</li>" for i in rec)))
-open("dashboard.html", "w").write(html)
+print("\nKEY INSIGHTS")
+for i in ins: print("-", i)
+print("\nRECOMMENDATIONS")
+for r in rec: print("-", r)
