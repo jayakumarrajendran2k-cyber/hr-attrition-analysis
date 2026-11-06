@@ -23,5 +23,8 @@ https://claude.ai/artifact/CN8cG6B7W7fLg7EBeRaQky
 - `hr_analysis.py`: data generation and analysis code
 
 ## How to run
+## How to run
+```
 pip install pandas numpy
 python hr_analysis.py
+```
